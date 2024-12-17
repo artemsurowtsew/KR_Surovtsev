@@ -2,20 +2,35 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
     app:startDestination="@id/courseListFragment">
 
     <fragment
         android:id="@+id/courseListFragment"
         android:name="com.example.kr_surovtsev.ui.fragments.CourseListFragment"
-        tools:layout="@layout/fragment_course_list" >
+        android:label="Course List"
+        tools:layout="@layout/fragment_course_list">
         <action
-            android:id="@+id/action_courseList_to_addCourse"
+            android:id="@+id/action_courseListFragment_to_courseDetailsFragment"
+            app:destination="@id/courseDetailsFragment" />
+        <action
+            android:id="@+id/action_courseListFragment_to_addCourseFragment"
             app:destination="@id/addCourseFragment" />
     </fragment>
 
     <fragment
+        android:id="@+id/courseDetailsFragment"
+        android:name="com.example.kr_surovtsev.ui.fragments.CourseDetailsFragment"
+        android:label="Course Details">
+        <argument
+            android:name="courseId"
+            app:argType="integer" />
+    </fragment>
+
+
+
+    <fragment
         android:id="@+id/addCourseFragment"
         android:name="com.example.kr_surovtsev.ui.fragments.AddCourseFragment"
+        android:label="Add Course"
         tools:layout="@layout/fragment_add_course" />
 </navigation>

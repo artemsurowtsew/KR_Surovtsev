@@ -6,51 +6,60 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kr_surovtsev.R
 import com.example.kr_surovtsev.data.Repository
+import com.example.kr_surovtsev.databinding.FragmentCourseListBinding
 import com.example.kr_surovtsev.ui.adapters.CourseAdapter
 import com.example.kr_surovtsev.viewmodel.CourseViewModel
 import com.example.kr_surovtsev.viewmodel.CourseViewModelFactory
-import kotlinx.android.synthetic.main.fragment_course_list.*
 
 class CourseListFragment : Fragment() {
+
+    private var _binding: FragmentCourseListBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var viewModel: CourseViewModel
     private lateinit var adapter: CourseAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_course_list, container, false)
-    }
+    ): View {
+        _binding = FragmentCourseListBinding.inflate(inflater, container, false)
+        val rootView = binding.root
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+        // Ініціалізація ViewModel
         val repository = Repository(requireContext())
         val factory = CourseViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory).get(CourseViewModel::class.java)
 
+        // Налаштування RecyclerView
         adapter = CourseAdapter(emptyList()) { course ->
-            // Обробка кліку на курс, навігація до деталей або редагування
+            // Переходимо до фрагмента з деталями курсу
+            val action = CourseListFragmentDirections
+                .actionCourseListFragmentToCourseDetailsFragment(course.id)
+            findNavController().navigate(action)
         }
 
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
 
+        // Кнопка для додавання курсу
+        binding.buttonAddCourse.setOnClickListener {
+            findNavController().navigate(R.id.action_courseListFragment_to_addCourseFragment)
+        }
+
+        // Спостерігаємо за даними
         viewModel.courses.observe(viewLifecycleOwner) { courses ->
             adapter.updateCourses(courses)
         }
 
         viewModel.fetchCourses()
 
-        buttonAddCourse.setOnClickListener {
-            // Навігація до AddCourseFragment
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, AddCourseFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+        return rootView
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -10,20 +10,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CourseViewModel(private val repository: Repository) : ViewModel() {
+
+    // Приватне MutableLiveData для внутрішнього використання
     private val _courses = MutableLiveData<List<Course>>()
+
+    // Публічне LiveData для спостереження у UI
     val courses: LiveData<List<Course>> get() = _courses
 
-    fun fetchCourses() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val data = repository.getAllCourses()
-            _courses.postValue(data)
-        }
-    }
-
+    // Додавання нового курсу
     fun addCourse(course: Course) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.addCourse(course)
-            fetchCourses()
+            fetchCourses() // Оновити список після додавання
         }
     }
+
+    // Завантаження всіх курсів
+    fun fetchCourses() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val courseList = repository.getAllCourses()
+            _courses.postValue(courseList)
+        }
+    }
+
+    // Пошук курсу за ID
+    fun getCourseById(courseId: Int): LiveData<Course?> {
+        val courseLiveData = MutableLiveData<Course?>()
+        viewModelScope.launch(Dispatchers.IO) {
+            val course = repository.getCourseById(courseId)
+            courseLiveData.postValue(course)
+        }
+        return courseLiveData
+    }
+
 }
